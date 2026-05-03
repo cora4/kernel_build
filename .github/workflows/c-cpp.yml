@@ -17,7 +17,7 @@ jobs:
         submodules: recursive
         fetch-depth: 1
     - name: Show common
-      run: ls /home/runner/work/kernel_build/kernel_build/common/
+      run: ls /home/runner/work/kernel_build/kernel_build/common/; as --version
     - name: Build Dependencies
       id: build_depends
       run: |
@@ -34,7 +34,7 @@ jobs:
         restore-keys: ${{ runner.os }}-ccache-
     - name: Build kernel
       id: gmake_build
-      run: ARCH=arm64 KERNEL_DIR=common BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
+      run: export AS=llvm-as ARCH=arm64; KERNEL_DIR=common BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
     - name: Show ccache stats
       run: ccache -s
     - name: Upload Build Artifact
