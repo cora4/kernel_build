@@ -31,7 +31,7 @@ jobs:
         restore-keys: ${{ runner.os }}-ccache-
     - name: Build kernel
       id: gmake_build
-      run: ARCH=arm64 BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
+      run: ARCH=arm64 KERNEL_DIR=common BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
     - name: Show ccache stats
       run: ccache -s
     - name: Upload Build Artifact
