@@ -17,7 +17,7 @@ jobs:
         submodules: recursive
         fetch-depth: 1
     - name: Show common
-      run: ls /home/runner/work/kernel_build/kernel_build/common/; as --version
+      run: ls /home/runner/work/kernel_build/kernel_build/common/; as --version; echo Current dir: $PWD
     - name: Build Dependencies
       id: build_depends
       run: |
@@ -42,4 +42,4 @@ jobs:
       uses: actions/upload-artifact@v6
       with:
         name: gki-kernel
-        path: dist/ out/android11-5.4/common/arch/arm64/boot
+        path: /home/runner/work/kernel_build/kernel_build/out/android11-5.4/dist/
