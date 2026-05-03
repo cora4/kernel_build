@@ -798,11 +798,12 @@ if [[ -n "${LLVM}" ]]; then
   # Reset a bunch of variables that the kernel's top level Makefile does, just
   # in case someone tries to use these binaries in this script such as in
   # initramfs generation below.
-  HOSTCC=clang
+  HOSTCC="ccache clang"
   HOSTCXX=clang++
-  CC=clang
+  CC="ccache clang"
   LD=ld.lld
   AR=llvm-ar
+  AS=llvm-as
   NM=llvm-nm
   OBJCOPY=llvm-objcopy
   OBJDUMP=llvm-objdump
@@ -901,7 +902,7 @@ echo "========================================================"
 echo " Setting up for build"
 if [ "${SKIP_MRPROPER}" != "1" ] ; then
   set -x
-  (cd ${KERNEL_DIR} && make "${TOOL_ARGS[@]}" O=${OUT_DIR} "${MAKE_ARGS[@]}" mrproper)
+  (cd ${KERNEL_DIR} && make "${TOOL_ARGS[@]}" O=${OUT_DIR} "${MAKE_ARGS[@]}" mrproperLLVM=1 LLVM_IAS=1)
   set +x
 fi
 
@@ -915,7 +916,7 @@ fi
 
 if [ "${SKIP_DEFCONFIG}" != "1" ] ; then
   set -x
-  (cd ${KERNEL_DIR} && make "${TOOL_ARGS[@]}" O=${OUT_DIR} "${MAKE_ARGS[@]}" ${DEFCONFIG})
+  (cd ${KERNEL_DIR} && make "${TOOL_ARGS[@]}" O=${OUT_DIR} "${MAKE_ARGS[@]}" ${DEFCONFIG} LLVM=1 LLVM_IAS=1)
   set +x
 
   if [ -n "${POST_DEFCONFIG_CMDS}" ]; then
@@ -957,7 +958,7 @@ if [ "${LTO}" = "none" -o "${LTO}" = "thin" -o "${LTO}" = "full" ]; then
       -e LTO_CLANG_FULL \
       -d THINLTO
   fi
-  (cd ${OUT_DIR} && make "${TOOL_ARGS[@]}" O=${OUT_DIR} "${MAKE_ARGS[@]}" olddefconfig)
+  (cd ${OUT_DIR} && make "${TOOL_ARGS[@]}" O=${OUT_DIR} "${MAKE_ARGS[@]}" olddefconfig LLVM=1 LLVM_IAS=1)
   set +x
 elif [ -n "${LTO}" ]; then
   echo "LTO= must be one of 'none', 'thin' or 'full'."
@@ -1025,7 +1026,7 @@ if [ -n "${KMI_SYMBOL_LIST}" ]; then
               -d UNUSED_SYMBOLS -e TRIM_UNUSED_KSYMS \
               --set-str UNUSED_KSYMS_WHITELIST ${OUT_DIR}/abi_symbollist.raw
       (cd ${OUT_DIR} && \
-              make O=${OUT_DIR} "${TOOL_ARGS[@]}" "${MAKE_ARGS[@]}" olddefconfig)
+              make O=${OUT_DIR} "${TOOL_ARGS[@]}" "${MAKE_ARGS[@]}" olddefconfig LLVM=1 LLVM_IAS=1)
       # Make sure the config is applied
       grep CONFIG_UNUSED_KSYMS_WHITELIST ${OUT_DIR}/.config > /dev/null || {
         echo "ERROR: Failed to apply TRIM_NONLISTED_KMI kernel configuration" >&2
@@ -1050,7 +1051,7 @@ echo "========================================================"
 echo " Building kernel"
 
 set -x
-(cd ${OUT_DIR} && make O=${OUT_DIR} "${TOOL_ARGS[@]}" "${MAKE_ARGS[@]}" ${MAKE_GOALS})
+(cd ${OUT_DIR} && make O=${OUT_DIR} "${TOOL_ARGS[@]}" "${MAKE_ARGS[@]}" ${MAKE_GOALS} LLVM=1 LLVM_IAS=1)
 set +x
 
 if [ -n "${POST_KERNEL_BUILD_CMDS}" ]; then
@@ -1104,7 +1105,7 @@ if [[ -z "${SKIP_EXT_MODULES}" ]] && [[ -n "${EXT_MODULES_MAKEFILE}" ]]; then
   make -f "${EXT_MODULES_MAKEFILE}" KERNEL_SRC=${ROOT_DIR}/${KERNEL_DIR} \
           O=${OUT_DIR} ${TOOL_ARGS} ${MODULE_STRIP_FLAG}                 \
           INSTALL_HDR_PATH="${KERNEL_UAPI_HEADERS_DIR}/usr"              \
-          INSTALL_MOD_PATH=${MODULES_STAGING_DIR} "${MAKE_ARGS[@]}"
+          INSTALL_MOD_PATH=${MODULES_STAGING_DIR} "${MAKE_ARGS[@]} LLVM=1 LLVM_IAS=1"
 fi
 
 if [[ -z "${SKIP_EXT_MODULES}" ]] && [[ -n "${EXT_MODULES}" ]]; then
