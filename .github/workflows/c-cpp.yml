@@ -13,14 +13,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with: 
+        submodules: recursive
+        fetch-depth: 1
+    - name: Show common
+      run: ls /home/runner/work/kernel_build/kernel_build/common/
     - name: Build Dependencies
       id: build_depends
       run: |
         sudo apt-get update
         sudo apt-get install -y --no-install-recommends \
           ccache lld clang llvm
-    - name: Show nproc
-      run: find /home/runner/work/kernel_build/ -type d
     - name: Configure kernel
       run: mkdir ~/.ccache
     - name: Cache ccache
