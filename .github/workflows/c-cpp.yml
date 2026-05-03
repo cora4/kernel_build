@@ -42,4 +42,4 @@ jobs:
       uses: actions/upload-artifact@v6
       with:
         name: gki-kernel
-        path: /home/runner/work/kernel_build/kernel_build/out/android11-5.4/dist/
+        path: out/android11-5.4/dist/
