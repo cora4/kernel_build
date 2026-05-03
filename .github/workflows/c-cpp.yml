@@ -42,4 +42,4 @@ jobs:
       uses: actions/upload-artifact@v6
       with:
         name: gki-kernel
-        path: out/android11-5.4/common/arch/arm64/boot/
+        path: dist/ out/android11-5.4/common/arch/arm64/boot
